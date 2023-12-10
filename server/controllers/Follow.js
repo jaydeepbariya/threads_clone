@@ -51,13 +51,17 @@ exports.unfollowUser = async (req,res) => {
     
         unfollowedUser.followers = unfollowedUser.followers.filter((follower) => follower !== userId);
         user.following = user.following.filter((followingUser) => followingUser !== unfollowedUserId);
+
+        const userUpdate = await User.findByIdAndUpdate(userId, { $pull: {following: unfollowedUserId} }, { new: true });
+        const unfollowedUserUpdate = await User.findByIdAndUpdate(unfollowedUserId, { $pull: {followers: userId} }, { new: true });
     
-        await user.save();
-        await unfollowedUser.save();
-    
+        console.log(userUpdate);
+        console.log(unfollowedUserUpdate);
+
         res.status(200).json({success:true, message:"User unfollowed successfully"});
+
       } catch (error) {
-        console.error('Unfollow User Error ', error);
-        res.status(500).json({ error: 'Unfollow User Error' });
+        console.error("Unfollow User Error ", error);
+        res.status(500).json({ success:false, message: "Unfollow User Error" });
       }
 }

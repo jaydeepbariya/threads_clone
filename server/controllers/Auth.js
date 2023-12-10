@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const Profile = require("../models/Profile");
 const jwt = require("jsonwebtoken");
 const mailSender = require("../util/MailSender");
+const crypto = require("crypto");
 
 exports.sendotp = async (req, res) => {
   try {
@@ -102,6 +103,8 @@ exports.register = async (req, res) => {
       additionalDetails: profileDetails._id,
     });
 
+    savedUser.password = undefined;
+    
     return res.status(200).json({
       success: true,
       message: "User Sign Up Successful",
@@ -204,22 +207,24 @@ exports.forgotPassword = async (req, res) => {
       { new: true }
     );
 
-    const url = `http://localhost:3000/update-password/${token}`;
+    const url = `http://localhost:3000/reset-password/${token}`;
 
     const response = mailSender(
       email,
-      "Reset Password Link - StudyNotion",
+      "Reset Password Link - Threads Clone",
       `Reset Password by Clicking Here ${url}`
     );
 
     return res.status(200).json({
       success: true,
       message: "Reset Password Link Sent Successfully",
+      token
     });
   } catch (error) {
+    console.log("Reset Password Error ", error.message);
     return res.status(200).json({
       success: false,
-      message: "Reset Password Error, Please Try Again",
+      message: "Reset Password Error, Please Try Again"
     });
   }
 };
@@ -235,7 +240,7 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ token: token });
+    const user = await User.findOne({ resetPasswordToken: token });
 
     if (!user) {
       return res.status(400).json({
@@ -254,7 +259,7 @@ exports.resetPassword = async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = await User.findOneAndUpdate(
-      { token: token },
+      { resetPasswordToken: token },
       { password: hashedNewPassword },
       { new: true }
     ).populate("additionalDetails").select("-password");
@@ -276,7 +281,7 @@ exports.resetPassword = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const { email } = req.user;
+    const { userId } = req.user;
 
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
@@ -285,7 +290,7 @@ exports.changePassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne(email);
+    const user = await User.findById(userId);
 
     const result = await bcrypt.compare(newPassword, user.email);
 
@@ -293,17 +298,17 @@ exports.changePassword = async (req, res) => {
       return res.status(400).json({ success: false, message: "Same Password" });
     }
 
-    const newHashedPassword = bcrypt.hash(newPassword, 10);
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
     const updatedUser = await User.findOneAndUpdate(
-      { _id: req.user.id },
+      { _id: req.user.userId },
       { password: newHashedPassword },
       { new: true }
     );
 
     const response = await mailSender(
       user.email,
-      "Password Change Successful - StudyNotion",
+      "Password Change Successful - Threads Clone",
       `Password Changed for ${user.firstName} ${user.lastName}`
     );
 

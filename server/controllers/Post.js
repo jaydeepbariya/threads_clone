@@ -156,7 +156,7 @@ exports.deletePost = async (req, res) => {
 
     await Comment.deleteMany({ post: existingPost._id });
 
-    await existingPost.remove();
+    await Post.deleteOne({ _id: existingPost._id });
 
     res
       .status(200)

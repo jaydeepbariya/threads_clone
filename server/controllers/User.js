@@ -2,10 +2,11 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const Like = require("../models/Like");
+const Profile = require("../models/Profile");
 
 exports.deleteUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.user;
 
     const user = await User.findById(userId);
 
@@ -18,8 +19,8 @@ exports.deleteUser = async (req, res) => {
     await Post.deleteMany({ postedBy: userId });
     await Comment.deleteMany({ user: userId });
     await Like.deleteMany({ user: userId });
-
-    await user.remove();
+    await Profile.deleteOne({ _id: user.additionalDetails });
+    await user.deleteOne({_id: userId});
 
     res
       .status(200)
@@ -39,7 +40,7 @@ exports.getUser = async (req, res) => {
 
     const user = await User.findById(userId)
       .populate({
-        path: "profile",
+        path: "additionalDetails",
         model: "Profile",
       })
       .populate({
@@ -48,11 +49,7 @@ exports.getUser = async (req, res) => {
       })
       .populate({
         path: "followers following",
-        model: "User",
-        populate: {
-          path: "profile",
-          model: "Profile",
-        },
+        model: "User"
       });
 
     if (!user) {

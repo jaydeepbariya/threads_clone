@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const likeSchema = new mongoose.Schema({
+const commentSchema = new mongoose.Schema({
   text: {
     type: String,
     required: true,
@@ -15,4 +15,4 @@ const likeSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Like", likeSchema);
+module.exports = mongoose.model("Comment", commentSchema);

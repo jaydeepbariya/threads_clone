@@ -3,7 +3,7 @@ const { auth } = require('../middlewares/Auth');
 const { deleteUser, getUser } = require('../controllers/User');
 const router = express.Router();
 
-router.delete('/users/:userId', auth, deleteUser);
-router.get('/users/:userId', auth, getUser);
+router.delete('/', auth, deleteUser);
+router.get('/:userId', getUser);
 
 module.exports = router;

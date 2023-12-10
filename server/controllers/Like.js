@@ -18,7 +18,9 @@ exports.likePost = async (req,res) => {
     
         const existingLike = await Like.findOne({ user:userId, post:postId });
     
-        if (existingLike) {
+        console.log(existingLike);
+
+        if(existingLike) {
           return res.status(400).json({ success:false, message: "Liked the post already" });
         }
     
@@ -56,16 +58,16 @@ exports.unlikePost = async (req,res) => {
           return res.status(400).json({ success: false, message: "You have not liked this post" });
         }
     
-        await existingLike.remove();
+        await existingLike.deleteOne({ user: userId, post: postId });
     
-        existingPost.likes = existingPost.likes.filter((likeId) => likeId.toString() !== existingLike._id.toString());
+        existingPost.likes.pull(existingLike._id);
     
         await existingPost.save();
     
         res.status(200).json({ success: true, message: "Post unliked successfully" });
 
       } catch (error) {
-        console.error('Unlike Post Error ', error);
-        res.status(500).json({ error: "Unlike Post Error" });
+        console.error("Unlike Post Error ", error);
+        res.status(500).json({ success: false, message: "Unlike Post Error" });
       }
 }
