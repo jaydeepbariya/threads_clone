@@ -4,8 +4,8 @@ const OTP = require("../models/OTP");
 const bcrypt = require("bcrypt");
 const Profile = require("../models/Profile");
 const jwt = require("jsonwebtoken");
-const mailSender = require("../util/MailSender");
 const crypto = require("crypto");
+const { mailSender } = require("../util/MailSender");
 
 exports.sendotp = async (req, res) => {
   try {
@@ -48,7 +48,7 @@ exports.sendotp = async (req, res) => {
   } catch (error) {
     console.log("OTP Error : ", error);
     return res.status(500).json({
-      success: true,
+      success: false,
       message: "Sending OTP Error",
     });
   }
@@ -57,7 +57,7 @@ exports.sendotp = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     const { fullName, username, email, password, otp } = req.body;
-
+    console.log("req body ", req.body);
     if (!fullName || !username || !email || !password || !otp) {
       return res.status(400).json({
         success: false,
@@ -77,6 +77,9 @@ exports.register = async (req, res) => {
     const recentOTP = await OTP.findOne({ email: email })
       .sort({ createdAt: -1 })
       .limit(1);
+
+    console.log(" recent otp ", recentOTP);
+    console.log(" otp ", otp);
 
     if (recentOTP?.otp !== otp) {
       return res.status(400).json({
@@ -104,7 +107,7 @@ exports.register = async (req, res) => {
     });
 
     savedUser.password = undefined;
-    
+
     return res.status(200).json({
       success: true,
       message: "User Sign Up Successful",
@@ -218,13 +221,13 @@ exports.forgotPassword = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Reset Password Link Sent Successfully",
-      token
+      token,
     });
   } catch (error) {
     console.log("Reset Password Error ", error.message);
     return res.status(200).json({
       success: false,
-      message: "Reset Password Error, Please Try Again"
+      message: "Reset Password Error, Please Try Again",
     });
   }
 };
@@ -262,12 +265,14 @@ exports.resetPassword = async (req, res) => {
       { resetPasswordToken: token },
       { password: hashedNewPassword },
       { new: true }
-    ).populate("additionalDetails").select("-password");
+    )
+      .populate("additionalDetails")
+      .select("-password");
 
     return res.status(200).json({
       success: true,
       message: "Password Update Successful",
-      user: updatedUser
+      user: updatedUser,
     });
   } catch (error) {
     console.log("Password Reset Error ", error.message);
