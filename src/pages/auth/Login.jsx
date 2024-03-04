@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { loginUser } from "../services/authService";
+import { loginUser } from "../../services/authService";
 import { useDispatch } from "react-redux";
 
 const Login = () => {

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
-import { resetPassword } from "../services/authService";
+import { resetPassword } from "../../services/authService";
 import { useNavigate, useParams } from "react-router-dom";
 
 const ResetPassword = () => {

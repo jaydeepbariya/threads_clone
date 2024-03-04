@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import OTPInput from "react-otp-input";
 import { useSelector } from "react-redux";
-import { registerUser } from "../services/authService";
+import { registerUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 
 const VerifyEmail = () => {

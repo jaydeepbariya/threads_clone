@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { sendotp } from "../services/authService";
+import { sendotp } from "../../services/authService";
 
 const Register = () => {
   const {
